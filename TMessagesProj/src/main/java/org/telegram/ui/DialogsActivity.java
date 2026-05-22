@@ -275,7 +275,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import tw.nekomimi.nekogram.BackButtonMenuRecent;
 import tw.nekomimi.nekogram.forward.ForwardContext;
 import tw.nekomimi.nekogram.NekoConfig;
-import tw.nekomimi.nekogram.forward.SendOptionsMenuLayout;
+import tw.nekomimi.nekogram.forward.SendItemOptions;
 import tw.nekomimi.nekogram.helpers.PasscodeHelper;
 import me.vkryl.android.animator.BoolAnimator;
 import me.vkryl.android.animator.FactorAnimator;
@@ -11767,7 +11767,7 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
                 canSchedule = false;
             }
         }
-        SendOptionsMenuLayout layout = new SendOptionsMenuLayout(parentActivity, forwardContext, canSchedule, forwardContext.forceShowScheduleAndSound() || selectedDialogs.size() > 1, onlyMyself ? getUserConfig().clientUserId : 0, () -> {
+        var sendItemOptions = new SendItemOptions(getBulletinLayoutContainer(), view, forwardContext, canSchedule, forwardContext.forceShowScheduleAndSound() || selectedDialogs.size() > 1, onlyMyself ? getUserConfig().clientUserId : -1, () -> {
             if (delegate == null || selectedDialogs.isEmpty()) {
                 return;
             }
@@ -11777,25 +11777,7 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
             }
             delegate.didSelectDialogs(DialogsActivity.this, topicKeys, commentView.getFieldText(), false, notify, scheduleDate, scheduleRepeatPeriod, null);
         }, resourcesProvider);
-
-        var sendPopupWindow = new ActionBarPopupWindow(layout, LayoutHelper.WRAP_CONTENT, LayoutHelper.WRAP_CONTENT);
-        sendPopupWindow.setAnimationEnabled(false);
-        sendPopupWindow.setAnimationStyle(R.style.PopupContextAnimation2);
-        sendPopupWindow.setOutsideTouchable(true);
-        sendPopupWindow.setClippingEnabled(true);
-        sendPopupWindow.setInputMethodMode(ActionBarPopupWindow.INPUT_METHOD_NOT_NEEDED);
-        sendPopupWindow.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_UNSPECIFIED);
-        sendPopupWindow.getContentView().setFocusableInTouchMode(true);
-        SharedConfig.removeScheduledOrNoSoundHint();
-
-        layout.setSendPopupWindow(sendPopupWindow);
-        layout.measure(View.MeasureSpec.makeMeasureSpec(dp(1000), View.MeasureSpec.AT_MOST), View.MeasureSpec.makeMeasureSpec(dp(1000), View.MeasureSpec.AT_MOST));
-        sendPopupWindow.setFocusable(true);
-        int[] location = new int[2];
-        view.getLocationInWindow(location);
-        int y = location[1] - layout.getMeasuredHeight() - dp(2);
-        sendPopupWindow.showAtLocation(view, Gravity.LEFT | Gravity.TOP, location[0] + view.getMeasuredWidth() - layout.getMeasuredWidth() + dp(8), y);
-        sendPopupWindow.dimBehind();
+        sendItemOptions.show();
 
         return true;
     }

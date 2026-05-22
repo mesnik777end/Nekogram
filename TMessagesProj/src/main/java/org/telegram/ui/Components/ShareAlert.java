@@ -138,7 +138,7 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
 import tw.nekomimi.nekogram.forward.ForwardContext;
-import tw.nekomimi.nekogram.forward.SendOptionsMenuLayout;
+import tw.nekomimi.nekogram.forward.SendItemOptions;
 
 public class ShareAlert extends BottomSheet implements NotificationCenter.NotificationCenterDelegate {
 
@@ -1765,6 +1765,7 @@ public class ShareAlert extends BottomSheet implements NotificationCenter.Notifi
         };
         writeButton.setCircleSize(dp(52), dp(38));
         writeButton.setCirclePadding(dp(1), dp(6));
+        writeButton.setScrimViewBackgroundColor(getThemedColor(Theme.key_windowBackgroundWhite));
         writeButton.newCounterPos = true;
         writeButtonContainer.addView(writeButton, LayoutHelper.createFrameMatchParent());
         writeButton.setOnClickListener(v -> sendInternal(true));
@@ -2260,37 +2261,11 @@ public class ShareAlert extends BottomSheet implements NotificationCenter.Notifi
             return false;
         }
 
-        SendOptionsMenuLayout layout = new SendOptionsMenuLayout(parentActivity, forwardContext, true, true, () -> {
+        var sendItemOptions = new SendItemOptions(container, view, forwardContext, true, true, () -> {
             var params = forwardContext.getForwardParams();
             sendInternal(params.notify, params.scheduleDate);
         }, resourcesProvider);
-
-        sendPopupWindow = new ActionBarPopupWindow(layout, LayoutHelper.WRAP_CONTENT, LayoutHelper.WRAP_CONTENT);
-        sendPopupWindow.setAnimationEnabled(false);
-        sendPopupWindow.setAnimationStyle(R.style.PopupContextAnimation2);
-        sendPopupWindow.setOutsideTouchable(true);
-        sendPopupWindow.setClippingEnabled(true);
-        sendPopupWindow.setInputMethodMode(ActionBarPopupWindow.INPUT_METHOD_NOT_NEEDED);
-        sendPopupWindow.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_UNSPECIFIED);
-        sendPopupWindow.getContentView().setFocusableInTouchMode(true);
-        SharedConfig.removeScheduledOrNoSoundHint();
-
-        layout.setSendPopupWindow(sendPopupWindow);
-        layout.measure(View.MeasureSpec.makeMeasureSpec(dp(1000), View.MeasureSpec.AT_MOST), View.MeasureSpec.makeMeasureSpec(dp(1000), View.MeasureSpec.AT_MOST));
-        sendPopupWindow.setFocusable(true);
-        int[] location = new int[2];
-        view.getLocationInWindow(location);
-        int y;
-        if (keyboardVisible && parentFragment != null && parentFragment.contentView.getMeasuredHeight() > dp(58)) {
-            y = location[1] + view.getMeasuredHeight();
-        } else {
-            y = location[1] - layout.getMeasuredHeight() - dp(2);
-        }
-        sendPopupWindow.showAtLocation(view, Gravity.LEFT | Gravity.TOP, location[0] + view.getMeasuredWidth() - layout.getMeasuredWidth() + dp(8), y);
-        sendPopupWindow.dimBehind();
-        try {
-            view.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP, HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING);
-        } catch (Exception ignored) {}
+        sendItemOptions.show();
 
         return true;
     }
